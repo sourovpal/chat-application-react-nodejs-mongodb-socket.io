@@ -103,7 +103,7 @@ const ChatBox = ()=>{
                 <div className="chat-typing-area">
                   <input type="text" placeholder="Type your meesage..." className="chat-input" />
                   <button className="send-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="feather feather-send" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-send" viewBox="0 0 24 24">
                       <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
                     </svg>
                   </button>

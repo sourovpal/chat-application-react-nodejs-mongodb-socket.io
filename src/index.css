@@ -608,3 +608,18 @@ a {
 .user-wrapper{
 
 }
+.logout-confirm-dialog .p-confirm-dialog-accept,
+.logout-confirm-dialog .p-confirm-dialog-reject{
+  padding: 3px 22px;
+  border-radius: 4px;
+}
+.logout-confirm-dialog .p-dialog-header{
+  padding-top: 15px;
+  padding-bottom: 5px;
+}
+.logout-confirm-dialog .p-dialog-content{
+  padding:0 1.5rem 1rem 1.5rem;
+}
+.logout-confirm-dialog .p-confirm-dialog-icon{
+  font-size: 22px;
+}

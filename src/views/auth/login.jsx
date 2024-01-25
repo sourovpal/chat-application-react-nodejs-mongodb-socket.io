@@ -1,13 +1,16 @@
 
 import { useState } from 'react';
-import './auth.style.css';
 import Register from './register';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
+import './auth.style.css';
+import cookie from 'react-cookies';
+import { redirect } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../../redux/authReducer';
 
 const Login = ()=>{
-
-
+    const dispatch = useDispatch();
     const [formStatus, setFormStatus]  = useState(false);
 
     const [email, setEmail] = useState('');
@@ -27,7 +30,8 @@ const Login = ()=>{
                 password
             }).then((res)=>{
                 setDisabled(false);
-                console.log(res);
+                const {data} = res.data;
+                dispatch(login({data}));                
             }).catch((error)=>{
                 setDisabled(false);
                 if(typeof error.response.data.message != undefined){
@@ -40,9 +44,9 @@ const Login = ()=>{
     }
 
     return(
-        <>
+        <div className='auth-section'>
             <Toaster position="bottom-center" reverseOrder={false} />
-            <div className={`container ${formStatus?'active':''}`} id="container">
+            <div className={`auth-container ${formStatus?'active':''}`} id="container">
                 <div className="form-container sign-up">
                     <Register/>
                 </div>
@@ -87,7 +91,7 @@ const Login = ()=>{
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 
