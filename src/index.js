@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import axios from 'axios';
-
+import routers from './routers';
+import { RouterProvider } from 'react-router-dom';
 
 axios.defaults.baseURL = "http://localhost:8080/api/v1";
 
@@ -23,7 +24,9 @@ axios.defaults.headers.common['_uuid'] = uid;
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // <React.StrictMode>
-    <App />
+  <RouterProvider router={routers}>
+      <App />
+  </RouterProvider>
   // </React.StrictMode>
 );
 
