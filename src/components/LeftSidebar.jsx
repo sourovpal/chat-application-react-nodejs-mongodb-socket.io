@@ -2,11 +2,27 @@ import { useDispatch } from "react-redux";
 import { logout } from "../redux/authReducer";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { useState } from "react";
+import axios from "axios";
+import cookie from "react-cookies";
+
 const LeftSidebar = ()=>{
 
     const dispatch = useDispatch();
     const accept = ()=>{
-        dispatch(logout());
+
+        axios.get('/user/info', {
+            headers:{
+                Authorization:"Bearer "+cookie.load('chat_app_token'),
+            }
+        }).then((res)=>{
+            console.log(res);
+        }).catch((error)=>{
+            dispatch(logout());
+            console.log(error.message);
+        });
+
+
+
     }
 
     const [visible, setVisible] = useState(false);

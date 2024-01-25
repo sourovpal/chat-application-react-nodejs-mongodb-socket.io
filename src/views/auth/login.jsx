@@ -4,8 +4,6 @@ import Register from './register';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import './auth.style.css';
-import cookie from 'react-cookies';
-import { redirect } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '../../redux/authReducer';
 

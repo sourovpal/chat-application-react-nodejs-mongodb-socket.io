@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const UserAuthController = require('../controllers/UserAuthController');
+const UserController = require('../controllers/UserController');
 const JWTTokenValidat = require('../functions/JWTTokenValidation');
 /***
  * 
@@ -13,6 +14,9 @@ const {
     forgotPassword, 
     resetPassword
 } = new UserAuthController();
+const {
+    info, 
+} = new UserController();
 /***
  * 
  *  Auth Route Start
@@ -34,7 +38,7 @@ app.use('/auth', AuthRoute);
 var UserRoute = express.Router();
 
 UserRoute.use(JWTTokenValidat);
-
+UserRoute.get('/info', info);
 app.use('/', UserRoute);
 
 

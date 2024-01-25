@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { login } from '../../redux/authReducer';
 
 const Register = ()=>{
 
 
-    
-    const [formStatus, setFormStatus]  = useState(false);
-
+    const dispatch = useDispatch();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -35,6 +35,8 @@ const Register = ()=>{
                 }).then((res)=>{
                     setDisabled(false);
                     toast.success(res.data.message);
+                    const {data} = res.data;
+                    dispatch(login({data}));
                 }).catch((error)=>{
                     setDisabled(false);
                     if(typeof error.response.data.message != undefined){

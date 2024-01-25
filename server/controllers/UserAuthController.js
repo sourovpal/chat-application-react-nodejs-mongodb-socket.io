@@ -1,22 +1,24 @@
 const bcrypt = require("bcrypt")
 const UserModel = require('../Models/UserModel');
 const jwt = require('jsonwebtoken');
+const UserJWTToken = require("../Models/UserJWTToken");
+
 
 class UserAuthController{
-
+    
     constructor(){
     }
     /***
-    * User Register Method @register
-    * @return Object
+     * User Register Method @register
+     * @return Object
     ***/
-    register = async(req, res)=>{
-        try{
-            const uuid = req.headers._uuid || '';
-            if(!uuid || uuid.length < 15){
-                return res.status(422).json({
-                    status_code:422,
-                    message:'Unable to register with this device',
+   register = async(req, res)=>{
+       try{
+           const uuid = req.headers._uuid || '';
+           if(!uuid || uuid.length < 15){
+               return res.status(422).json({
+                   status_code:422,
+                   message:'Unable to register with this device',
                 });
             }
             var checkEmail = await UserModel.findOne({email:req.body.email});
@@ -54,10 +56,10 @@ class UserAuthController{
         }
     }
     /***
-    * User Login Method @login
-    * @return Object
+     * User Login Method @login
+     * @return Object
     ***/
-    login = async(req, res)=>{
+   login = async(req, res)=>{
         try{
             const uuid = req.headers._uuid || '';
             if(!uuid || uuid.length < 15){
@@ -105,6 +107,7 @@ class UserAuthController{
 
     createAuth = async(user=null, uuid=null, expiresIn='24h')=>{
         try{
+            
             const  data = {
                 user_id: user._id,
                 first_name: user.name.first,
@@ -120,13 +123,25 @@ class UserAuthController{
                 user_id:user._id, 
                 guard:'user'
             }, 
-            `${uuid}.${process.env.JWT_SECRET}`, 
+            `${uuid}___${process.env.JWT_SECRET}`, 
             {
                 expiresIn: expiresIn,
             });
             data['token_type'] = "Bearer";
             data['token'] = token;
             data['exact_token'] = `Bearer ${token}`;
+            if(uuid){
+                const jwtData = {
+                    user_id:user._id,
+                    ip_address:'1.2.23.65',
+                    uuid,
+                    token,
+                    device_name:'Computer',
+                    operating_system:'windows',
+                    address:'Dhaka, Bangladesh',
+                }
+                const jwtToken = await UserJWTToken.create(jwtData);
+            }
             return data;
         }catch(error){
             new Error(error.message);

@@ -1,5 +1,6 @@
 const jwt =require("jsonwebtoken");
-
+const UserJWTToken = require('../Models/UserJWTToken');
+const UserModel = require("../Models/UserModel");
 async function validateToken(req, res, next) {
   const auhorizationHeader = req.headers.authorization;
   let result;
@@ -12,14 +13,13 @@ async function validateToken(req, res, next) {
   }
 
   const token = req.headers.authorization.split(" ")[1];
-
+  const uuid = req.headers._uuid || '';
   const options = {
     expiresIn: "24h",
   };
-
+  
   try {
-
-    result = jwt.verify(token, process.env.JWT_SECRET, options);
+    result = jwt.verify(token, `${uuid}___${process.env.JWT_SECRET}`, options);
 
     if (!result) {
       result = {
@@ -31,9 +31,20 @@ async function validateToken(req, res, next) {
     }
 
     req.decoded = result;
-    console.log('decoded', result);
+    const checkToken = await UserJWTToken.findOne({uuid:uuid, token:token});
+    if(checkToken){
+      const user = await UserModel.findOne({_id:checkToken.user_id});
+      if(user){
+        req.auth = true;
+        req.user = user;
+        return next();
+      }
+    }
+    return res.status(401).json({
+      status_code: 401,
+      message: "Invalid token",
+    });
 
-    next();
   } catch (error) {
     console.error(error);
 
