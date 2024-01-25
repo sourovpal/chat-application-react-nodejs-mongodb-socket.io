@@ -7,7 +7,12 @@ const JWTTokenValidat = require('../functions/JWTTokenValidation');
  *  Call Controller Methods
  * 
 ***/
-const {login, register} = new UserAuthController();
+const {
+    login, 
+    register, 
+    forgotPassword, 
+    resetPassword
+} = new UserAuthController();
 /***
  * 
  *  Auth Route Start
@@ -17,8 +22,8 @@ var AuthRoute = express.Router();
 
 AuthRoute.post('/register', register);
 AuthRoute.post('/login', login);
-AuthRoute.post('/forgot-password', login);
-AuthRoute.post('/reset-password', login);
+AuthRoute.post('/forgot-password', forgotPassword);
+AuthRoute.post('/reset-password', resetPassword);
 
 app.use('/auth', AuthRoute);
 /***

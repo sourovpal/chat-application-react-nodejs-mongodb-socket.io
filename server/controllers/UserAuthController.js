@@ -6,7 +6,10 @@ class UserAuthController{
 
     constructor(){
     }
-
+    /***
+    * User Register Method @register
+    * @return Object
+    ***/
     register = async(req, res)=>{
         try{
             const uuid = req.headers._uuid || '';
@@ -35,9 +38,10 @@ class UserAuthController{
                 avatar:`https://ui-avatars.com/api/?name=${req.body.first_name}+${req.body.last_name}`,
             };
             const user = await UserModel.create(data);
+            /*** Self Method @createAuth ***/
             const auth = await this.createAuth(user, uuid);
-            return res.status(200).json({
-                status_code:200,
+            return res.status(201).json({
+                status_code:201,
                 data:auth,
                 message:'New User Created Successful.',
             });
@@ -49,9 +53,46 @@ class UserAuthController{
             });
         }
     }
-
+    /***
+    * User Login Method @login
+    * @return Object
+    ***/
     login = async(req, res)=>{
-        res.end('Hello');
+        try{
+            const uuid = req.headers._uuid || '';
+            if(!uuid || uuid.length < 15){
+                return res.status(422).json({
+                    status_code:422,
+                    message:'Unable to login with this device',
+                });
+            }
+            var user = await UserModel.findOne({email:req.body.email});
+            if(!user){
+                return res.status(404).json({
+                    status_code:404,
+                    message:'This email is not registered.',
+                });
+            }else{
+                const isMatch = await bcrypt.compareSync(req.body.password, user.password);
+                if(isMatch){
+                    const auth = await this.createAuth(user, uuid);
+                    return res.status(200).json({
+                        status_code:200,
+                        data:auth,
+                        message:'Successfully logged in.',
+                    });
+                }
+                return res.status(403).json({
+                    status_code:403,
+                    message:'This password not match.',
+                });
+            }
+        }catch(error){
+            return res.status(error.status || 500).json({
+                status_code:error.status || 500,
+                message:error.message,
+            });
+        }
     }
 
     forgotPassword = async(req, res)=>{
