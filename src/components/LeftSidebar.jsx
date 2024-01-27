@@ -1,12 +1,14 @@
-import { useDispatch } from "react-redux";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authReducer";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { useState } from "react";
 import axios from "axios";
 import cookie from "react-cookies";
+import { Link } from "react-router-dom";
 
-const LeftSidebar = ()=>{
-
+const LeftSidebar = (props)=>{
+    const auth = useSelector((state)=>state.auth.user);
     const dispatch = useDispatch();
     const accept = ()=>{
 
@@ -20,9 +22,6 @@ const LeftSidebar = ()=>{
             dispatch(logout());
             console.log(error.message);
         });
-
-
-
     }
 
     const [visible, setVisible] = useState(false);
@@ -51,42 +50,26 @@ const LeftSidebar = ()=>{
                         </div>
                     </div>
                     <div className="chat-area p-0">
-                        <a className="message-wrapper px-3 user-wrapper" href="">
-                            <div className="profile-picture">
-                                <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
-                            </div>
-                            <div className="message-content">
-                                <p className="name">Ryan Patrick</p>
-                                <p className="name d-flex justify-content-start align-items-center"><span className="online-badge me-1"></span>Online</p>
-                            </div>
-                        </a>
-                        <a className="message-wrapper px-3 user-wrapper" href="">
-                            <div className="profile-picture">
-                                <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
-                            </div>
-                            <div className="message-content">
-                                <p className="name">Ryan Patrick</p>
-                                <p className="name d-flex justify-content-start align-items-center"><span className="online-badge me-1"></span>Online</p>
-                            </div>
-                        </a>
-                        <a className="message-wrapper px-3 user-wrapper" href="">
-                            <div className="profile-picture">
-                                <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
-                            </div>
-                            <div className="message-content">
-                                <p className="name">Ryan Patrick</p>
-                                <p className="name d-flex justify-content-start align-items-center"><span className="online-badge me-1"></span>Online</p>
-                            </div>
-                        </a>
-                        <a className="message-wrapper px-3 user-wrapper" href="">
-                            <div className="profile-picture">
-                                <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
-                            </div>
-                            <div className="message-content">
-                                <p className="name">Ryan Patrick</p>
-                                <p className="name d-flex justify-content-start align-items-center"><span className="online-badge offline me-1"></span>Online</p>
-                            </div>
-                        </a>
+                        {
+                            props.users && props.users.map((user, index)=>(
+                                <React.Fragment key={index}>
+                                    {
+                                        auth.username != user.username &&
+                                        <Link className="message-wrapper px-3 user-wrapper" to={`/${user.username}`}>
+                                            <div className="profile-picture">
+                                                <img src={user.avatar} alt="pp"/>
+                                            </div>
+                                            <div className="message-content">
+                                                <p className="name">{`${user.name.first} ${user.name.last}`.toUpperCase()}</p>
+                                                <p className="name d-flex justify-content-start align-items-center"><span className={`online-badge me-1 ${user.online?'':'offline'}`}></span>{user.online?'Online':'offline'}</p>
+                                            </div>
+                                        </Link>
+                                    }
+                                
+                                </React.Fragment>                            
+
+                            ))
+                        }
                     </div>
                     <div className="mt-auto">
                         <div className="p-3">
@@ -117,4 +100,4 @@ const LeftSidebar = ()=>{
 
 }
 
-export default LeftSidebar;
+export default React.memo(LeftSidebar);

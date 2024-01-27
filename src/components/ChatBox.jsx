@@ -1,6 +1,29 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import connectSocketIo from "../socket";
 
+const socket = connectSocketIo();
+const ChatBox = (props)=>{
+  const [message, setMessage] = useState('');
+  
+  const {username} = useParams();
+  
+  const user = useSelector((state)=>state.auth.user);
+  const sendMessage = ()=>{
+    socket.emit('send_message', {
+      message,
+      from:user.username,
+      to:username,
+    });
+  }
+  
+  useEffect(()=>{
+      socket.emit('receive_message', (data)=>{
+          console.log(data);
+      });
+    },[]);
 
-const ChatBox = ()=>{
     return (
         <>
         <div className="right-side">
@@ -101,8 +124,8 @@ const ChatBox = ()=>{
               </div>
               <div className="chat-typing-area-wrapper">
                 <div className="chat-typing-area">
-                  <input type="text" placeholder="Type your meesage..." className="chat-input" />
-                  <button className="send-button">
+                  <input value={message} onChange={(e)=>setMessage(e.target.value)} type="text" placeholder="Type your meesage..." className="chat-input"  />
+                  <button onClick={()=>sendMessage()} className="send-button">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-send" viewBox="0 0 24 24">
                       <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
                     </svg>

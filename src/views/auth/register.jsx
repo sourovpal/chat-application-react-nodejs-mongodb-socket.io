@@ -39,7 +39,9 @@ const Register = ()=>{
                     dispatch(login({data}));
                 }).catch((error)=>{
                     setDisabled(false);
-                    if(typeof error.response.data.message != undefined){
+                    if(typeof error.response != "undefined" && 
+                    typeof error.response.data != "undefined" && 
+                    typeof error.response.data.message != "undefined"){
                         toast.error(error.response.data.message);
                     }else{
                         toast.error(error.message);

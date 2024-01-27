@@ -1,12 +1,14 @@
-const dotenv = require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const UsersModel = require('./Models/UserModel');
 //  Routers
 const UserRuter = require('./routers/user');
+const SocketJWTTokenValidation = require('./functions/SocketJWTTokenValidation');
 
 
 
@@ -30,10 +32,101 @@ app.use(function(req, res, next) {
   next();
 });
 
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
+io.use(SocketJWTTokenValidation);
 io.on('connection', (socket)=>{
     console.log('New user Connected:', socket.id);
+    
+    socket.on('join', async(data)=>{
+        console.log('New user Connected:', data.username);
+        if(data.username){
+            socket.join(data.username);
+            // console.log(io.sockets.adapter.rooms)
+            // socket.broadcast.emit('test')
+            // console.log(io.sockets.adapter.rooms);
+            var users = await UsersModel.find({});
+            var onlineUsers = [];
+            var onlineUsername = [];
+            users.map((user)=>{
+                var result = {
+                    name:user.name,
+                    username:user.username,
+                    avatar:user.avatar,
+                }
+                if(io.sockets.adapter.rooms.get(user.username)){
+                    // io.emit('connect_new_user', {});
+                    onlineUsername.push(user.username);
+                    result['online'] = true;
+                }else{
+                    result['online'] = false;
+                }
+                onlineUsers.push(result);
+            });
+            socket.emit('fetch_all_users', {
+                users:onlineUsers
+            });
+
+            socket.broadcast.emit("fetch_all_users", {
+                users:onlineUsers
+            });
+
+
+        }
+    });
+
+
+
+
+    socket.on('send_message', (data)=>{
+        console.log(data)
+        console.log(io.sockets.adapter.rooms)
+        socket.broadcast.to(data.to).emit('receive_message', data);
+        // socket.broadcast.to(data.to).emit("receive_message", data);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+    socket.on('disconnect', async()=>{
+        var users = await UsersModel.find({});
+        var onlineUsers = [];
+        var onlineUsername = [];
+        users.map((user)=>{
+            var result = {
+                name:user.name,
+                username:user.username,
+                avatar:user.avatar,
+            }
+            if(io.sockets.adapter.rooms.get(user.username)){
+                onlineUsername.push(user.username);
+                result['online'] = true;
+            }else{
+                result['online'] = false;
+            }
+            onlineUsers.push(result);
+        });
+        socket.emit('fetch_all_users', {
+            users:onlineUsers
+        });
+
+        socket.broadcast.emit("fetch_all_users", {
+            users:onlineUsers
+        });
+    });
 });
 
 app.all('/', (req, res)=>{

@@ -1,11 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 import cookie from 'react-cookies';
+import { userDeviceId } from '../hooks/userDeviceId';
+
 
 export const authSlice = createSlice({
   name: 'counter',
   initialState: {
     user:cookie.load('chat_app_user')||Object,
     auth:(cookie.load('chat_app_user')&&cookie.load('chat_app_token'))?true:false,
+    uuid:userDeviceId(),
   },
   reducers: {
     login:(state, action)=>{

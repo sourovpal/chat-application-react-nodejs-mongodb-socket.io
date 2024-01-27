@@ -83,6 +83,7 @@ a {
 .left-side {
   position: relative;
   padding:16px;
+  height: 100vh;
 }
 
 .navigation {
