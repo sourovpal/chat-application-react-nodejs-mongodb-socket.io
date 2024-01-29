@@ -104,7 +104,29 @@ class UserAuthController{
     resetPassword = async(req, res)=>{
         return res.end('reset');
     }
-
+    logout = async (req, res)=>{
+        try{
+            const token = req.headers.authorization.split(" ")[1];
+            const uuid = req.headers._uuid || '';
+            const checkToken = await UserJWTToken.findOne({uuid:uuid, token:token});
+            if(checkToken){
+                await checkToken.deleteOne();
+                return res.status(200).json({
+                    status_code: 200,
+                    message: "Successfully logged out.",
+                });
+            }
+            return res.status(401).json({
+                status_code: 401,
+                message: "Invalid token",
+            });
+        }catch(error){
+            return res.status(500).json({
+                status_code: 500,
+                message: error.message,
+            });
+        }
+    }
     createAuth = async(user=null, uuid=null, expiresIn='24h')=>{
         try{
             

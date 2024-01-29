@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import Register from './register';
 import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
 import './auth.style.css';
 import { useDispatch } from 'react-redux';
 import { login } from '../../redux/authReducer';
+import AuthAction from '../../action/authAction';
 
 const Login = ()=>{
     const dispatch = useDispatch();
@@ -22,15 +22,12 @@ const Login = ()=>{
         }else if(password === '' || password === null || password.length <= 0){
             toast.error('Password field must be required.');
         }else{
-            setDisabled(true);
-            axios.post('/user/auth/login', {
-                email,
-                password
-            }).then((res)=>{
+            try{
+                setDisabled(true);
+                const {data} = await AuthAction.login({email, password});
                 setDisabled(false);
-                const {data} = res.data;
-                dispatch(login({data}));                
-            }).catch((error)=>{
+                dispatch(login({data})); 
+            }catch(error){
                 setDisabled(false);
                 if(typeof error.response != "undefined" && 
                 typeof error.response.data != "undefined" && 
@@ -39,7 +36,8 @@ const Login = ()=>{
                 }else{
                     toast.error(error.message);
                 }
-            });
+            }
+
         }
     }
 

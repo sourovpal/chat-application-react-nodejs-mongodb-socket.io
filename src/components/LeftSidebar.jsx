@@ -1,31 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authReducer";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { useState } from "react";
-import axios from "axios";
-import cookie from "react-cookies";
 import { Link } from "react-router-dom";
+import socket from "../socket";
 
-const LeftSidebar = (props)=>{
+const LeftSidebar = ()=>{
+    useEffect(()=>{socket.connect()}, []);
+    const [users, setUsers] = useState([]);
+    socket.on('fetch_all_users', ({users})=>{
+        setUsers(users)
+    });
+
     const auth = useSelector((state)=>state.auth.user);
     const dispatch = useDispatch();
     const accept = ()=>{
-
-        axios.get('/user/info', {
-            headers:{
-                Authorization:"Bearer "+cookie.load('chat_app_token'),
-            }
-        }).then((res)=>{
-            console.log(res);
-        }).catch((error)=>{
-            dispatch(logout());
-            console.log(error.message);
-        });
+        socket.disconnect();
+        dispatch(logout());
     }
-
     const [visible, setVisible] = useState(false);
-
     return (
         <>
             <div className="left-side">
@@ -51,7 +45,7 @@ const LeftSidebar = (props)=>{
                     </div>
                     <div className="chat-area p-0">
                         {
-                            props.users && props.users.map((user, index)=>(
+                            users.length && users.map((user, index)=>(
                                 <React.Fragment key={index}>
                                     {
                                         auth.username != user.username &&

@@ -3,10 +3,9 @@ import { useState } from "react";
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { login } from '../../redux/authReducer';
+import AuthAction from "../../action/authAction";
 
 const Register = ()=>{
-
-
     const dispatch = useDispatch();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -25,31 +24,26 @@ const Register = ()=>{
         }else if(password === '' || password === null || password.length <= 0){
             toast.error('Password field must be required.');
         }else{
-            setDisabled(true);
             try{
-                axios.post('/user/auth/register', {
+                setDisabled(true);
+                const {data, message} = await AuthAction.register({
                     first_name:firstName,
                     last_name:lastName,
                     email,
                     password
-                }).then((res)=>{
-                    setDisabled(false);
-                    toast.success(res.data.message);
-                    const {data} = res.data;
-                    dispatch(login({data}));
-                }).catch((error)=>{
-                    setDisabled(false);
-                    if(typeof error.response != "undefined" && 
-                    typeof error.response.data != "undefined" && 
-                    typeof error.response.data.message != "undefined"){
-                        toast.error(error.response.data.message);
-                    }else{
-                        toast.error(error.message);
-                    }
                 });
+                setDisabled(false);
+                toast.success(message);
+                dispatch(login({data}));
             }catch(error){
                 setDisabled(false);
-                toast.error(error.message);
+                if(typeof error.response != "undefined" && 
+                typeof error.response.data != "undefined" && 
+                typeof error.response.data.message != "undefined"){
+                    toast.error(error.response.data.message);
+                }else{
+                    toast.error(error.message);
+                }
             }
         }
     }

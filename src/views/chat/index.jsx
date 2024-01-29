@@ -1,28 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import LeftSidebar from "../../components/LeftSidebar";
-import connectSocketIo from '../../socket';
 import { Outlet } from "react-router-dom";
-const socket = connectSocketIo();
+import socket from "../../socket";
 function Chat() {
-  const [data, setData] = useState([]);
-  
-  const fetchAllUsers = ({users})=>{
-    setData(users);
-  }
-  
+
   useEffect(()=>{
-    socket.on('fetch_all_users', fetchAllUsers);
-    return () => {
-      socket.off('fetch_all_users', fetchAllUsers);
-    };
-  },[]);
+      socket.connect()
+      // console.log(socket);
+      
+  }, []);
+
 
 
   return (
     <>
       <div className="App dark">
           <div className="app-container">
-            <LeftSidebar users={data} />
+            <LeftSidebar />
             <Outlet />
             <button className="expand-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-message-circle">

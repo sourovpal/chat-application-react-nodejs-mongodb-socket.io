@@ -10,6 +10,7 @@ const JWTTokenValidat = require('../functions/JWTTokenValidation');
 ***/
 const {
     login, 
+    logout,
     register, 
     forgotPassword, 
     resetPassword
@@ -26,6 +27,7 @@ var AuthRoute = express.Router();
 
 AuthRoute.post('/register', register);
 AuthRoute.post('/login', login);
+AuthRoute.post('/logout', logout);
 AuthRoute.post('/forgot-password', forgotPassword);
 AuthRoute.post('/reset-password', resetPassword);
 

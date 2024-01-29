@@ -1,31 +1,30 @@
-import { io } from 'socket.io-client';
+import { Manager } from 'socket.io-client';
 import cookie from 'react-cookies';
-import { useSelector } from 'react-redux';
-import store from './redux/index';
-const connectSocketIo =()=>{
-    const {auth} = store.getState();
-    const user = auth.user;
-    const uid = auth.uuid;
-    const URL = 'http://localhost:8080';
-    var socket = io(URL, {
-        extraHeaders:{
-            _uuid:uid,
-            Authorization:`Bearer ${cookie.load('chat_app_token')}` || ''
-        }
-    });
-    socket.emit('join', {...user});
+import { userDeviceId } from './hooks/userDeviceId';
 
-    socket.on("connect_error", (err) => {
-        // console.log(err.message);
-    });
-    socket.on('connect_failed', function(){
-        // console.log('Connection Failed');
-    });
-    return socket;
-}
+var token = cookie.load('chat_app_token');
+const uid = userDeviceId();
+const URL = 'http://localhost:8080';
+const manager = new Manager(URL, {
+    autoConnect: false,
+    reconnectionAttempts:'infinite',
+    extraHeaders:{
+        _uuid:uid,
+        Authorization:`Bearer ${token}` || ''
+    },
+});
 
 
 
-export default connectSocketIo;
+var socket = manager.socket('/');
+socket.on('connect', ()=>{
+    socket.emit('join');
+});
+socket.on("connect_error", (err) => {
+    console.log(err);
+});
+
+    
+export default socket;
 
 

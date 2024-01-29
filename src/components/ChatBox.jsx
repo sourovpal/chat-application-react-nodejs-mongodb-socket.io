@@ -1,27 +1,32 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import connectSocketIo from "../socket";
+import socket from "../socket";
 
-const socket = connectSocketIo();
 const ChatBox = (props)=>{
+  useEffect(()=>{
+    socket.connect();
+    console.log('connect');
+  }, []);
+  
   const [message, setMessage] = useState('');
   
   const {username} = useParams();
   
   const user = useSelector((state)=>state.auth.user);
+
   const sendMessage = ()=>{
-    socket.emit('send_message', {
-      message,
-      from:user.username,
-      to:username,
-    });
+    // socket.emit('send_message', {
+    //   message,
+    //   from:user.username,
+    //   to:username,
+    // });
   }
   
   useEffect(()=>{
-      socket.emit('receive_message', (data)=>{
-          console.log(data);
-      });
+      // socket.emit('receive_message', (data)=>{
+      //     console.log(data);
+      // });
     },[]);
 
     return (

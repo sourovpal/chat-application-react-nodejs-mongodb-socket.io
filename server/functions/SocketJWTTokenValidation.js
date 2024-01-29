@@ -27,6 +27,13 @@ async function SocketJWTTokenValidation(req, next) {
         if(checkToken){
         const user = await UserModel.findOne({_id:checkToken.user_id});
         if(user){
+            req.auth = true;
+            req.user = {
+                user_id:user._id, 
+                username:user.username, 
+                name:user.name, 
+                email:user.email
+            };
             return next();
         }
         }
@@ -34,9 +41,9 @@ async function SocketJWTTokenValidation(req, next) {
     
 } catch (error) {
     if (error.name === "TokenExpiredError") {
-        next(new Error("Token expired"));
+        next(new Error("Token Expired"));
     }
-    next(new Error("Authentication error"));
+    next(new Error("Authentication Error"));
   }
 }
 
