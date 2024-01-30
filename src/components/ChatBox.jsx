@@ -1,34 +1,84 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import socket from "../socket";
-
+import ReceiveMessage from "./ReceiveMessage";
 const ChatBox = (props)=>{
   useEffect(()=>{
     socket.connect();
-    console.log('connect');
   }, []);
   
+  const [scrollStatus, setScrollStatus] = useState(true);
+  const [behavior, setBehavior] = useState('auto');
   const [message, setMessage] = useState('');
-  
   const {username} = useParams();
-  
   const user = useSelector((state)=>state.auth.user);
+  const location = useLocation();
+  const refChatArea = useRef(null);
+  const [fromUser, setFromUser] = useState({});
+  const [toUser, setToUser] = useState([]);
+  const [htmlMessage, setHtmlMessage] = useState([]);
+
 
   const sendMessage = ()=>{
-    // socket.emit('send_message', {
-    //   message,
-    //   from:user.username,
-    //   to:username,
-    // });
+    socket.emit('send_message', {
+      message,
+      from:user.username,
+      to:username,
+    });
   }
   
+  
   useEffect(()=>{
-      // socket.emit('receive_message', (data)=>{
-      //     console.log(data);
-      // });
-    },[]);
+    setHtmlMessage([]);
+    socket.on('receive_message', (payload)=>{
+      if(payload.to_user.username === user.username){
+        socket.emit('message_delivery_success',{
+          message_id:payload.data._id,
+        })
+      }
+      if(payload.from_user.username === username || payload.from_user.username === user.username){
+        setHtmlMessage(v => [...v, payload]);
+        setMessage('');
+      }
+    });
+    socket.emit('fetch_last_message',{
+      from:user.username,
+      to:username,
+      limit:20,
+    });
+    socket.on('fetch_last_message', (payload)=>{
+      const {from_user, to_user, data} = payload;
+      data.reverse().map((mes)=>{
+        setHtmlMessage(v => [...v, {from_user:to_user, to_user:from_user, data:mes}]);
+      });
+      setToUser(to_user);
+      setFromUser(from_user);
+    });
+    return ()=>{
+      setHtmlMessage([]);
+      socket.off('receive_message');
+      socket.off('fetch_last_message');
+      socket.off('send_message');
+    }
+  },[location]);
+  
 
+  useEffect(()=>{
+    if(scrollStatus){
+      refChatArea.current.scroll({
+        top: refChatArea.current.scrollHeight,
+        left: 0,
+        behavior: behavior
+      });
+      setBehavior('smooth');
+    }
+    return ()=>{
+      setBehavior('auto');
+    }
+  }, [htmlMessage]);
+
+    
     return (
         <>
         <div className="right-side">
@@ -36,96 +86,32 @@ const ChatBox = (props)=>{
               <div className="chat-header">
                 <div className="message-wrapper py-2">
                   <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
+                    <img src={`${toUser.avatar}`} alt="pp"/>
                   </div>
                   <div className="message-content">
-                    <p className="name">Ryan Patrick</p>
+                    <p className="name">{toUser.full_name}</p>
                     <p className="name d-flex justify-content-start align-items-center"><span className="online-badge offline- me-1"></span>Online</p>
                   </div>
                 </div>
               </div>
-              <div className="chat-area">
-                <div className="message-wrapper">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Ryan Patrick</p>
-                    <div className="message">Helloo team!😍</div>
-                  </div>
-                </div>
-                <div className="message-wrapper">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1566821582776-92b13ab46bb4?ixlib=rb-1.2.1&auto=format&fit=crop&w=900&q=60" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Andy Will</p>
-                    <div className="message">Hello! Can you hear me?🤯 <a className="mention">@ryanpatrick</a></div>
-                  </div>
-                </div>
-                <div className="message-wrapper">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1600207438283-a5de6d9df13e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Jessica Bell</p>
-                    <div className="message">Hi team! Let's get started it.</div>
-                  </div>
-                </div>
-                <div className="message-wrapper reverse">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Emmy Lou</p>
-                    <div className="message">Good morning!🌈</div>
-                  </div>
-                </div>
-                <div className="message-wrapper">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1576110397661-64a019d88a98?ixlib=rb-1.2.1&auto=format&fit=crop&w=1234&q=80" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Tim Russel</p>
-                    <div className="message">New design document⬇️</div>
-                    <div className="message-file">
-                      <div className="icon sketch">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                          <path fill="#ffd54f" d="M96 191.02v-144l160-30.04 160 30.04v144z" />
-                          <path fill="#ffecb3" d="M96 191.02L256 16.98l160 174.04z" />
-                          <path fill="#ffa000" d="M0 191.02l256 304 256-304z" />
-                          <path fill="#ffca28" d="M96 191.02l160 304 160-304z" />
-                          <g fill="#ffc107">
-                            <path d="M0 191.02l96-144v144zM416 47.02v144h96z" />
-                          </g>
-                        </svg>
-                      </div>
-                      <div className="file-info">
-                        <div className="file-name">NewYear.sketch</div>
-                        <div className="file-size">120 MB</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="message-wrapper">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1581824283135-0666cf353f35?ixlib=rb-1.2.1&auto=format&fit=crop&w=1276&q=80" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Ryan Patrick</p>
-                    <div className="message">Hi team!❤️</div>
-                    <div className="message">I downloaded the file <a className="mention">@timrussel</a></div>
-                  </div>
-                </div>
-                <div className="message-wrapper reverse">
-                  <div className="profile-picture">
-                    <img src="https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80" alt="pp"/>
-                  </div>
-                  <div className="message-content">
-                    <p className="name">Emmy Lou</p>
-                    <div className="message">Woooww! Awesome❤️</div>
-                  </div>
-                </div>
+              <div 
+              className="chat-area"
+              id={`chat_area_${username}`} 
+              ref={refChatArea} 
+              onMouseOver={()=>setScrollStatus(false)} 
+              onMouseLeave={()=>setScrollStatus(true)}>
+                {
+                  htmlMessage.map((mes, index)=>(
+                    <React.Fragment key={index}>
+                      <ReceiveMessage 
+                      to_user={mes.to_user}
+                      from_user={mes.from_user} 
+                      data={mes.data}
+                      user={user}
+                      />
+                    </React.Fragment>
+                  ))
+                }
               </div>
               <div className="chat-typing-area-wrapper">
                 <div className="chat-typing-area">

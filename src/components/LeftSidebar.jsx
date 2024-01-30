@@ -31,6 +31,17 @@ const LeftSidebar = ()=>{
                     </svg>
                 </button>
                 <div className="chat-container" style={{ width:'330px' }}>
+                    <div className="chat-header">
+                        <div className="message-wrapper py-2">
+                        <div className="profile-picture">
+                            <img src={`${auth.avatar}`} alt="pp"/>
+                        </div>
+                        <div className="message-content">
+                            <p className="name">{auth.full_name}</p>
+                            <p className="name d-flex justify-content-start align-items-center"><span className="online-badge offline- me-1"></span>Online</p>
+                        </div>
+                        </div>
+                    </div>
                     <div className="chat-header p-0">
                         <div className="chat-typing-area-wrapper">
                             <div className="chat-typing-area">

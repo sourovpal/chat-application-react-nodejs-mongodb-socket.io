@@ -128,7 +128,7 @@ a {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  height: calc(100%);
+  height: calc(100vh - 30px);
 }
 
 .chat-header {
@@ -189,7 +189,7 @@ a {
   border-radius: 0 12px 12px 12px;
   font-size: 12px;
   line-height: 16px;
-  max-width: calc(100% - 32px);
+  /* max-width: calc(100% - 32px); */
   color: var(--message-text);
 }
 
@@ -623,4 +623,8 @@ a {
 }
 .logout-confirm-dialog .p-confirm-dialog-icon{
   font-size: 22px;
+}
+.message-time{
+  font-size:10px;
+  color:#ffffff;
 }
